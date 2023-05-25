@@ -9,11 +9,9 @@ const Render = ({ formData }) => {
         e.preventDefault();
         const isValid = validateInputs(null);
         
-        setInputsData({});
-
         if (isValid) {
             let result = await fetch(
-                'http://localhost:5000/save', {
+                'http://localhost:11000/save', {
                 method: "post",
                 body: JSON.stringify({ formData: JSON.stringify(inputsData), htmlJson: JSON.stringify(formData) }),
                 headers: {
@@ -23,6 +21,7 @@ const Render = ({ formData }) => {
             result = await result.json();
             if (result) {
                 alert('succefully saved');
+                setInputsData({});
             }
         }
     };
