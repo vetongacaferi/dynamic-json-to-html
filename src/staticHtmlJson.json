@@ -1,17 +1,129 @@
 [
     {
-        "id": 1,
-        "title": "Football",
-        "body": "There are some great matches and good"
+       "type":"text",
+       "name":"firstName",
+       "label":"First Name",
+       "validations":[
+          {
+             "type":"isRequired",
+             "value":true,
+             "text":"First name is requried"
+          },
+          {
+             "type":"minChar",
+             "value":5,
+             "text":"Minimum character should be 5"
+          },
+          {
+             "type":"maxChar",
+             "value":20,
+             "text":"Your first name should not contain more than 25 characters"
+          }
+       ]
     },
     {
-        "id": 2,
-        "title": "Volleyball",
-        "body": "There are some great matches"
+       "type":"text",
+       "name":"lastName",
+       "label":"Last Name",
+       "validations":[
+          {
+             "type":"isRequired",
+             "value":false,
+             "text":"Value is requried"
+          },
+          {
+             "type":"minChar",
+             "value":3,
+             "text":"Minimum character should be 3"
+          },
+          {
+             "type":"maxChar",
+             "value":10,
+             "text":"Your last name should not contain more than 25 characters"
+          }
+       ]
     },
     {
-        "id": 3,
-        "title": "Baseball",
-        "body": "It's a bad hobby"
+       "type":"select",
+       "name":"country",
+       "label":"Country",
+       "options":[
+          {
+             "label":"",
+             "value":""
+          },
+          {
+             "label":"USA",
+             "value":"usa"
+          },
+          {
+             "label":"Canada",
+             "value":"canada"
+          },
+          {
+             "label":"UK",
+             "value":"uk"
+          }
+       ],
+       "validations":[
+          {
+             "type":"isRequired",
+             "value":true,
+             "text":"Please select a country"
+          }
+       ]
+    },
+    {
+       "type":"radio",
+       "name":"programmingLanguage",
+       "label":"Please select your favorite language",
+       "options":[
+          {
+             "label":"C#",
+             "value":"csharp"
+          },
+          {
+             "label":"Javascript",
+             "value":"javascript"
+          },
+          {
+             "label":"Java",
+             "value":"java"
+          }
+       ]
+    },
+    {
+       "type":"radio",
+       "name":"ageGroup",
+       "label":"Please select your age",
+       "verticalAlign":true,
+       "options":[
+          {
+             "label":"18 - 30",
+             "value":"30"
+          },
+          {
+             "label":"31 - 60",
+             "value":"60"
+          },
+          {
+             "label":"61 - 100",
+             "value":"100"
+          }
+       ]
+    },
+    {
+       "type":"textarea",
+       "name":"feedback",
+       "label":"Comment",
+       "rows":"10",
+       "cols":"50",
+       "validations":[
+          {
+             "type":"maxChar",
+             "value":50,
+             "text":"You reached the maximum of 50 characters"
+          }
+       ]
     }
-]
+ ]

@@ -1,101 +1,30 @@
 import { React, useState } from 'react';
 
-const Render = () => {
+const Render = ({ formData }) => {
 
     const [inputsData, setInputsData] = useState({});
     const [validations, setValidations] = useState({});
 
-    // TODO: move thsi one as json file and add more inputs cases and static html + unit test
-    const formData = [
-        {
-            type: 'text',
-            name: 'firstName',
-            label: 'First Name',
-            validations: [
-                { type: "isRequired", value: true, text: "First name is requried" },
-                { type: "minChar", value: 5, text: "Minimum character should be 5" },
-                { type: "maxChar", value: 20, text: "Your first name should not contain more than 25 characters" }
-            ]
-        },
-        {
-            type: 'text',
-            name: 'lastName',
-            label: 'Last Name',
-            validations: [
-                { type: "isRequired", value: false, text: "Value is requried" },
-                { type: "minChar", value: 3, text: "Minimum character should be 3" },
-                { type: "maxChar", value: 10, text: "Your last name should not contain more than 25 characters" }
-            ]
-        },
-        {
-            type: 'select',
-            name: 'country',
-            label: 'Country',
-            options: [
-                { label: "", value: "" },
-                { label: 'USA', value: 'usa' },
-                { label: 'Canada', value: 'canada' },
-                { label: 'UK', value: 'uk' },
-            ],
-            validations: [
-                { type: "isRequired", value: true, text: "Please select a country" },
-            ]
-        },
-        {
-            type: 'radio',
-            name: 'programmingLanguage',
-            label: 'Please select your favorite language',
-            options: [
-                { label: "C#", value: "csharp" },
-                { label: "Javascript", value: "javascript" },
-                { label: "Java", value: "java" }
-            ]
-        },
-        {
-            type: 'radio',
-            name: 'ageGroup',
-            label: 'Please select your age',
-            verticalAlign: true,
-            options: [
-                { label: "18 - 30", value: "30" },
-                { label: "31 - 60", value: "60" },
-                { label: "61 - 100", value: "100" }
-            ]
-        },
-        {
-            type: "textarea",
-            name: "feedback",
-            label: "Comment",
-            rows: "10",
-            cols: "50",
-            validations: [
-                { type: "maxChar", value: 50, text: "You reached the maximum of 50 characters" }
-            ]
-        }
-    ];
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        validateInputs(null);
-        console.log('inputsData:', inputsData);
+        const isValid = validateInputs(null);
+        
         setInputsData({});
 
-        // TODO: uncomment this to save on database
-
-        // let result = await fetch(
-        //     'http://localhost:5000/save', {
-        //     method: "post",
-        //     body: JSON.stringify({ formData: JSON.stringify(inputsData), htmlJson: JSON.stringify(formData) }),
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // });
-
-        // result = await result.json();
-        // if (result) {
-        //     alert('succefully saved');
-        // }
+        if (isValid) {
+            let result = await fetch(
+                'http://localhost:5000/save', {
+                method: "post",
+                body: JSON.stringify({ formData: JSON.stringify(inputsData), htmlJson: JSON.stringify(formData) }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            result = await result.json();
+            if (result) {
+                alert('succefully saved');
+            }
+        }
     };
 
     const onInputChanged = (inputValue, inputName) => {
@@ -104,23 +33,28 @@ const Render = () => {
 
         // perform validation;
         setInputsData(newList);
-        validateInputs(inputName, inputValue);
+        validateInputs({ name: inputName, value: inputValue });
     }
 
-    const validateInputs = (inputName, inputValue) => {
+    const validateInputs = (_input) => {
+        let isValid = true;
         const newValidations = { ...validations };
-        if (inputName) {
-            const findInputForm = formData.find(x => x.name === inputName);
-            newValidations[inputName] = buildValidationText(findInputForm, inputValue);
+        // validate one input, when input change
+        if (_input && _input.name) {
+            const findInputForm = formData.find(x => x.name === _input.name);
+            newValidations[_input.name] = buildValidationText(findInputForm, _input.value);
         }
+        // validate all inputs on submit
         else {
             for (const input of formData) {
                 newValidations[input.name] = buildValidationText(input, inputsData[input.name]);
+                if (newValidations[input.name]?.length > 0) {
+                    isValid = false;
+                }
             }
         };
-
-        console.log('newValidations:', newValidations);
         setValidations(newValidations);
+        return isValid;
     }
 
     const buildValidationText = (inputForm, inputValue) => {
@@ -162,7 +96,7 @@ const Render = () => {
                         <div key={index}>
                             <label>{input.label}</label>
                             <input type='text' value={inputsData[input.name] ?? ""} onChange={(e) => onInputChanged(e.target.value, input.name)} />
-                            <span>{validations[input.name]}</span>
+                            <span style={{ color: 'red' }}>{validations[input.name]}</span>
                         </div>
 
                     );
@@ -172,12 +106,12 @@ const Render = () => {
                             <label>{input.label}</label>
                             <div>
                                 {input.options.map((option, optinIndex) => (
-                                    <span style={input.verticalAlign ? { display: 'block' } : {}} >
-                                        <input key={optinIndex} type="radio" name={input.name} checked={option.value === inputsData[input.name]} value={option.value} onChange={() => onInputChanged(option.value, input.name)} /> <label>{option.label}</label>
+                                    <span key={optinIndex} style={input.verticalAlign ? { display: 'block' } : {}} >
+                                        <input type="radio" name={input.name} checked={option.value === inputsData[input.name]} value={option.value} onChange={() => onInputChanged(option.value, input.name)} /> <label>{option.label}</label>
                                     </span>
                                 ))}
                             </div>
-                            <span>{validations[input.name]}</span>
+                            <span style={{ color: 'red' }}>{validations[input.name]}</span>
                         </div>
                     );
                 case 'select':
@@ -191,7 +125,7 @@ const Render = () => {
                                     </option>
                                 ))}
                             </select>
-                            <span>{validations[input.name]}</span>
+                            <span style={{ color: 'red' }}>{validations[input.name]}</span>
                         </div>
                     );
                 case 'textarea':
@@ -199,9 +133,9 @@ const Render = () => {
                         <div key={index}>
                             <label>{input.label}</label>
                             <div>
-                                <textarea name={input.name} value={inputsData[input.name] ?? ""} rows={input.rows} cols={input.cols} onChange={(e) => onInputChanged(e.target.value, input.name)}></textarea>
+                                <textarea data-testid={input.name} name={input.name} value={inputsData[input.name] ?? ""} rows={input.rows} cols={input.cols} onChange={(e) => onInputChanged(e.target.value, input.name)}></textarea>
                             </div>
-                            <span>{validations[input.name]}</span>
+                            <span style={{ color: 'red' }}>{validations[input.name]}</span>
                         </div>
                     )
                 default:
