@@ -1,19 +1,21 @@
 import { React, useState } from 'react';
 
-const Render = ({ formData }) => {
+const Render = ({ htmlFormData, jsonId, onCancelForm }) => {
 
+    console.log('Render jsonId: ', jsonId)
     const [inputsData, setInputsData] = useState({});
     const [validations, setValidations] = useState({});
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const isValid = validateInputs(null);
-        
+
         if (isValid) {
+            console.log('jsonId: ', jsonId)
             let result = await fetch(
                 'http://localhost:11000/save', {
                 method: "post",
-                body: JSON.stringify({ formData: JSON.stringify(inputsData), htmlJson: JSON.stringify(formData) }),
+                body: JSON.stringify({ formData: JSON.stringify(inputsData), jsonId: jsonId }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -40,12 +42,12 @@ const Render = ({ formData }) => {
         const newValidations = { ...validations };
         // validate one input, when input change
         if (_input && _input.name) {
-            const findInputForm = formData.find(x => x.name === _input.name);
+            const findInputForm = htmlFormData.find(x => x.name === _input.name);
             newValidations[_input.name] = buildValidationText(findInputForm, _input.value);
         }
         // validate all inputs on submit
         else {
-            for (const input of formData) {
+            for (const input of htmlFormData) {
                 newValidations[input.name] = buildValidationText(input, inputsData[input.name]);
                 if (newValidations[input.name]?.length > 0) {
                     isValid = false;
@@ -66,17 +68,35 @@ const Render = ({ formData }) => {
                 switch (validation.type) {
                     case "isRequired":
                         if (validation.value && !inputValue?.length) {
-                            text += text?.length ? ", " + validation.text : validation.text;
+                            let defaultText = !isEmpty(validation.text) ? validation.text : "Required!!";
+                            text += text?.length ? ", " + defaultText : defaultText;
                         }
                         break;
                     case "minChar":
                         if (inputValue && inputValue.length < validation.value) {
-                            text += text?.length ? ", " + validation.text : validation.text;
+                            let defaultText = !isEmpty(validation.text) ? validation.text : "minChar!!";
+
+                            text += text?.length ? ", " + defaultText : defaultText;
                         }
                         break;
                     case "maxChar":
                         if (inputValue && inputValue.length > validation.value) {
-                            text += text?.length ? ", " + validation.text : validation.text;
+                            let defaultText =  !isEmpty(validation.text) ? validation.text : "maxChar!!";
+
+                            text += text?.length ? ", " + defaultText : defaultText;
+                        }
+                        break;
+                    case "min":
+                        if (inputValue && inputValue < validation.value) {
+                            let defaultText =  !isEmpty(validation.text) ? validation.text :  "Minimum!!";
+
+                            text += text?.length ? ", " + defaultText : defaultText;
+                        }
+                        break;
+                    case "max":
+                        if (inputValue && inputValue > validation.value) {
+                            let defaultText =  !isEmpty(validation.text) ? validation.text :  "Maximum!!";
+                            text += text?.length ? ", " + defaultText : defaultText;
                         }
                         break;
                     default:
@@ -87,14 +107,29 @@ const Render = ({ formData }) => {
         }
     }
 
+
+    const isEmpty = (str) => {
+        return (!str || str.length === 0);
+    }
+
+
     const renderInputs = () => {
-        return formData.map((input, index) => {
+        return htmlFormData.map((input, index) => {
             switch (input.type) {
                 case 'text':
                     return (
                         <div key={index}>
                             <label>{input.label}</label>
                             <input type='text' value={inputsData[input.name] ?? ""} onChange={(e) => onInputChanged(e.target.value, input.name)} />
+                            <span style={{ color: 'red' }}>{validations[input.name]}</span>
+                        </div>
+
+                    );
+                case 'number':
+                    return (
+                        <div key={index}>
+                            <label>{input.label}</label>
+                            <input type='number' value={inputsData[input.name] ?? ""} onChange={(e) => onInputChanged(e.target.value, input.name)} />
                             <span style={{ color: 'red' }}>{validations[input.name]}</span>
                         </div>
 
@@ -143,10 +178,15 @@ const Render = ({ formData }) => {
         });
     };
 
-    return <form onSubmit={handleSubmit}>
-        {renderInputs()}
-        <button type="submit">Submit</button>
-    </form>
+    return <>
+        <form>
+            {renderInputs()}
+        </form>
+        <div>
+            <button onClick={handleSubmit}>Submit</button>
+            <button onClick={onCancelForm}>Cancel</button>
+        </div>
+    </>
 }
 
 

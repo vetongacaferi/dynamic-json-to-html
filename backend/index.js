@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 // constatns
 const ConnectionString = 'mongodb://localhost:27017/';
 const DatabaseName = 'LocalDatabase';
-const CollectionName = 'formdatas';
+const JsonCollectionName = 'jsonData';
+const CollectionName = 'formData';
 
 mongoose.connect(ConnectionString, {
     dbName: DatabaseName,
@@ -15,11 +16,11 @@ mongoose.connect(ConnectionString, {
 
 // Schema for FormDataScheme of app
 const FormDataScheme = new mongoose.Schema({
-    htmlJson: {
+    formData: {
         type: String,
         required: false
     },
-    formData: {
+    jsonId: {
         type: String,
         required: false
     }
@@ -27,6 +28,25 @@ const FormDataScheme = new mongoose.Schema({
 
 const FormData = mongoose.model(CollectionName, FormDataScheme);
 FormData.createIndexes();
+
+
+// scheme for json(title, content)
+const jsonDataScheme = new mongoose.Schema({
+    jsonId: {
+        type: String,
+        required: false,
+    },
+    title: {
+        type: String,
+        required: false,
+    },
+    content: {
+        type: String,
+        required: false,
+    }
+});
+const JsonData = mongoose.model(JsonCollectionName, jsonDataScheme);
+JsonData.createIndexes();
 
 // For backend and express
 const express = require('express');
@@ -47,7 +67,6 @@ app.get("/", (req, resp) => {
 
 
 app.post("/save", async (req, resp) => {
-    console.log('register method called')
     try {
         const formData = new FormData(req.body);
         let result = await formData.save();
@@ -57,6 +76,38 @@ app.post("/save", async (req, resp) => {
             console.log(result);
         }
 
+    } catch (e) {
+        resp.send("Error: ", e);
+    }
+});
+
+
+app.post("/json/save", async (req, resp) => {
+    try {
+        const jsonData = new JsonData(req.body);
+        console.log('/json/save', jsonData);
+        let result = await jsonData.save();
+        result = result.toObject();
+        if (result) {
+            resp.send(req.body);
+            console.log(result);
+        }
+    }
+    catch (e) {
+        resp.send("Error: ", e);
+    }
+});
+
+app.get("/json/get", async (req, resp) => {
+    try {
+        JsonData.find((error, jsonData) => {
+            if (error) {
+                resp.send("Error: ", error);
+            }
+            else {
+                resp.send(jsonData)
+            }
+        });
     } catch (e) {
         resp.send("Error: ", e);
     }

@@ -6,10 +6,17 @@
 .item{
   margin: 10px;
   font-size: 20pt;
-  color: crimson;
+  color: rgb(153, 151, 151);
 }
 
 .body{
   font-size: 16pt;
   color: black;
+  height: 100%;
+}
+
+
+.textbox-input {
+  width: 100%;
+  height: 100%;
 }
