@@ -112,27 +112,26 @@ describe('Test Render form', () => {
     ];
 
     it('textarea is render on html', () => {
-        render(<Render formData={textAreaConfig} />)
+        render(<Render htmlFormData={textAreaConfig} />)
         expect(screen.getByTestId('feedback')).toBeInTheDocument();
         expect(screen.getByTestId('feedback-1')).toBeInTheDocument();
         expect(screen.getByTestId('feedback-2')).toBeInTheDocument();
     });
 
     it(' test select default option', () => {
-        render(<Render formData={selectHtmlConfig} />)
-        expect(screen.getAllByRole('option').length).toBe(5);
+        render(<Render htmlFormData={selectHtmlConfig} />)
+        expect(screen.getByRole('option', { name: '' }).selected).toBe(true);
     });
 
     it('test select option', () => {
-        render(<Render formData={selectHtmlConfig} />)
+        render(<Render htmlFormData={selectHtmlConfig} />)
 
-        expect(screen.getByRole('option', { name: '' }).selected).toBe(true);
         expect(screen.getAllByRole('option').length).toBe(5);
     });
 
 
     it('test radio option', () => {
-        render(<Render formData={radioHtmlConfig} />)
+        render(<Render htmlFormData={radioHtmlConfig} />)
 
         expect(screen.getAllByRole('radio').length).toBe(4);
     });
