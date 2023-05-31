@@ -7,6 +7,7 @@ const DatabaseName = 'LocalDatabase';
 const JsonCollectionName = 'jsonData';
 const CollectionName = 'formData';
 
+mongoose.set("strictQuery", false);
 mongoose.connect(ConnectionString, {
     dbName: DatabaseName,
     useNewUrlParser: true,

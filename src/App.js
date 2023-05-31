@@ -45,14 +45,11 @@ function App() {
   const handleButtonClick = (jsonId) => {
     const findJson = jsonData.find(x => x.jsonId == jsonId);
     if (findJson) {
-      console.log('JSON.parse(findJson.content),', typeof JSON.parse(findJson.content));
       setJsonToRender({ content: JSON.parse(findJson.content), jsonId: findJson.jsonId });
     }
   }
 
   const handleSaveJson = async (e) => {
-
-    
     e.preventDefault();
 
     // validate json
